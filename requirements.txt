@@ -1,4 +1,3 @@
-
 streamlit
 ultralytics
 opencv-python-headless
@@ -6,3 +5,4 @@ pillow
 pandas
 matplotlib
 requests
+numpy==1.26.4
