@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 import io
 import matplotlib.pyplot as plt
+import requests   # 👈 added for downloading model
 
 # STYLING
 def set_bg_from_local(image_file):
@@ -24,16 +25,34 @@ st.set_page_config(page_title="Marine Debris Detector", page_icon="🌊", layout
 set_bg_from_local("bg.jpg")
 
 # MODEL LOADING
+MODEL_URL = "https://huggingface.co/FaizAI/marine-debris-detector/resolve/main/best.pt"
+MODEL_PATH = "best.pt"
+
+# Download model if not exists
+def download_model():
+    if not os.path.exists(MODEL_PATH):
+        try:
+            with st.spinner("Downloading model from Hugging Face..."):
+                r = requests.get(MODEL_URL, stream=True)
+                with open(MODEL_PATH, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+            st.success("Model downloaded successfully ✅")
+        except Exception as e:
+            st.error(f"Failed to download model: {e}")
+
+download_model()
+
 @st.cache_resource
 def load_model(model_path):
     try:
         model = YOLO(model_path)
         return model
     except Exception as e:
-        st.error(f"Error loading model: {e}. Make sure 'best.pt' is in the same folder.")
+        st.error(f"Error loading model: {e}. Make sure 'best.pt' is available.")
         return None
 
-model = load_model('best.pt')
+model = load_model(MODEL_PATH)
 
 # SIDEBAR AND DASHBOARD
 st.sidebar.title("📊 Analytics Dashboard")
