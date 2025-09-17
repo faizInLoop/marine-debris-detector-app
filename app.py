@@ -27,7 +27,7 @@ def set_bg_from_local(image_file):
                 background-attachment: fixed;
                 background-size: cover;
             }}
-            /* --- NEW: CSS for Mobile Map Height --- */
+            /* CSS for Mobile Map Height */
             @media (max-width: 640px) {{
                 [data-testid="stMap"] {{
                     height: 250px !important;
@@ -48,7 +48,6 @@ set_bg_from_local("bg.jpg")
 # =================================================================================
 @st.cache_resource
 def load_model(model_path):
-    # (Same as before)
     try:
         model = YOLO(model_path)
         return model
@@ -57,7 +56,6 @@ def load_model(model_path):
         return None
 
 def get_gps_data(image_bytes):
-    # (Same as before)
     try:
         tags = exifread.process_file(image_bytes)
         lat_ref_tag = tags.get('GPS GPSLatitudeRef'); lat_tag = tags.get('GPS GPSLatitude')
@@ -81,7 +79,6 @@ model = load_model('best.pt')
 st.sidebar.title("📊 Analytics Dashboard")
 HISTORY_FILE = 'detection_history.csv'
 def update_dashboard():
-    # (Same as before)
     st.sidebar.write("### Total Debris Detected So Far:")
     if os.path.exists(HISTORY_FILE):
         df = pd.read_csv(HISTORY_FILE)
@@ -100,13 +97,13 @@ st.markdown("<h1 style='text-align: center; color: white; text-shadow: 2px 2px 8
 st.markdown("<h2 style='text-align: center; color: white; text-shadow: 2px 2px 8px #000;'>'Save the Ocean, One Image at a Time'</h2>", unsafe_allow_html=True)
 st.write(" "); st.divider()
 
-uploaded_file = st.uploader("Upload an underwater image...", type=["jpg", "jpeg", "png"])
+# --- THIS LINE IS NOW FIXED ---
+uploaded_file = st.file_uploader("Upload an underwater image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     image_bytes = io.BytesIO(uploaded_file.getvalue())
     image = Image.open(image_bytes).convert("RGB")
     
-    # Display GPS Data if available
     st.divider()
     st.write("### 📍 Geo-location Data")
     gps_coords = get_gps_data(io.BytesIO(uploaded_file.getvalue()))
@@ -115,15 +112,11 @@ if uploaded_file is not None:
         st.success(f"Location Found: Latitude = {lat:.6f}, Longitude = {lon:.6f}")
         map_data = pd.DataFrame({'lat': [lat], 'lon': [lon]})
         st.map(map_data)
-        
-        # --- UPDATED: Correct Google Maps Link ---
         google_maps_url = f"https://www.google.com/maps?q={lat},{lon}"
         st.markdown(f"**[Click here to view on Google Maps]({google_maps_url})**")
-
     else:
         st.info("No GPS data found in this image.")
     
-    # (The rest of the AI processing and display logic is the same)
     if model is not None:
         with st.spinner('AI is analyzing the image...'):
             img_array = np.array(image)
@@ -138,7 +131,6 @@ if uploaded_file is not None:
         boxes = results[0].boxes
         if len(boxes) == 0: st.success("✅ No debris detected!")
         else:
-            # (Processing and report generation is the same)
             detections = []; report_str = f"Detection Report for {uploaded_file.name}\n" + f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n" + "-------------------------\n"; detected_classes = []
             for box in boxes:
                 class_id = int(box.cls); class_name = model.names[class_id]; confidence = float(box.conf); detections.append({'class': class_name, 'confidence': confidence})
