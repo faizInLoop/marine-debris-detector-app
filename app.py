@@ -11,7 +11,6 @@ from datetime import datetime
 import io
 import matplotlib.pyplot as plt
 import requests
-# exifread import hata diya gaya hai
 
 # =================================================================================
 # 1. STYLING AND PAGE CONFIGURATION
@@ -80,8 +79,6 @@ def load_model():
         st.error(f"Error loading model from file: {e}")
         return None
 
-# get_gps_data function poora hata diya gaya hai
-
 # =================================================================================
 # 3. APP INITIALIZATION
 # =================================================================================
@@ -117,7 +114,6 @@ if uploaded_file is not None:
     image_bytes = io.BytesIO(uploaded_file.getvalue())
     image = Image.open(image_bytes).convert("RGB")
     
-    # GPS data aur map dikhane wala poora section yahan se hata diya gaya hai
     
     if model is not None:
         with st.spinner('AI is analyzing the image... Please wait.'):
